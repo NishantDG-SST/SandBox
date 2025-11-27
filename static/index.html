@@ -1,83 +1,515 @@
-<!-- static/index.html -->
 <!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Debugging Sandbox — Demo UI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Debug Sandbox 🚀</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 18px; }
-    textarea { width: 48%; height: 300px; }
-    pre { background:#f6f6f8; padding:10px; border-radius:6px; overflow:auto; }
-    .col { display:inline-block; vertical-align:top; }
-    .left { width: 50%; }
-    .right { width: 46%; margin-left: 2%; }
-    button { padding:10px 14px; margin-top:10px; }
-    .patch { border-left: 3px solid #4CAF50; padding-left:8px; margin-bottom:8px; }
-    .fail { color: #b00020; }
-    .ok { color: #0a7a2a; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg-gradient-start: #1a1a2e;
+      --bg-gradient-end: #16213e;
+      --text-color: #e4e4e7;
+      --card-bg: rgba(30, 30, 46, 0.9);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --input-bg: rgba(0, 0, 0, 0.5);
+      --input-border: rgba(255, 255, 255, 0.15);
+      --section-bg: rgba(0, 0, 0, 0.3);
+      --pre-bg: rgba(0, 0, 0, 0.5);
+      --accent-color: #8b5cf6;
+    }
+    
+    body.light-mode {
+      --bg-gradient-start: #667eea;
+      --bg-gradient-end: #764ba2;
+      --text-color: #ffffff;
+      --card-bg: rgba(255, 255, 255, 0.15);
+      --card-border: rgba(255, 255, 255, 0.25);
+      --input-bg: rgba(255, 255, 255, 0.2);
+      --input-border: rgba(255, 255, 255, 0.3);
+      --section-bg: rgba(255, 255, 255, 0.1);
+      --pre-bg: rgba(0, 0, 0, 0.15);
+      --accent-color: #a78bfa;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--text-color);
+      transition: all 0.3s ease;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: slideDown 0.8s ease-out;
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: -1px;
+    }
+    
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      font-weight: 300;
+    }
+    
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 2px solid var(--card-border);
+      border-radius: 50px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 24px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+    }
+    
+    .theme-toggle:hover {
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .theme-toggle:active {
+      transform: scale(0.95);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--card-border);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .icon {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    
+    textarea {
+      width: 100%;
+      height: 400px;
+      background: var(--input-bg);
+      border: 2px solid var(--input-border);
+      border-radius: 12px;
+      padding: 16px;
+      color: var(--text-color);
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+      resize: vertical;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: rgba(102, 126, 234, 0.6);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+    
+    textarea::placeholder {
+      color: var(--text-color);
+      opacity: 0.4;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    button span {
+      position: relative;
+      z-index: 1;
+    }
+    
+    #runBtn {
+      background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(0, 176, 155, 0.4);
+    }
+    
+    #runBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 176, 155, 0.6);
+    }
+    
+    #runBtn:active {
+      transform: translateY(0);
+    }
+    
+    #resetBtn {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    #resetBtn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-2px);
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 16px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .status-running {
+      background: rgba(255, 193, 7, 0.3);
+      color: #ffc107;
+      border: 2px solid #ffc107;
+    }
+    
+    .status-success {
+      background: rgba(76, 175, 80, 0.3);
+      color: #4caf50;
+      border: 2px solid #4caf50;
+    }
+    
+    .status-fail {
+      background: rgba(244, 67, 54, 0.3);
+      color: #f44336;
+      border: 2px solid #f44336;
+    }
+    
+    .section {
+      background: var(--section-bg);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    
+    .section h4 {
+      font-size: 1rem;
+      margin-bottom: 12px;
+      opacity: 0.9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .iteration-log {
+      background: var(--section-bg);
+      border-left: 4px solid var(--accent-color);
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      animation: slideIn 0.4s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .patch {
+      background: rgba(76, 175, 80, 0.2);
+      border-left: 4px solid #4caf50;
+      padding: 16px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      animation: slideIn 0.4s ease-out;
+    }
+    
+    .patch em {
+      display: block;
+      margin-bottom: 8px;
+      color: #a5d6a7;
+    }
+    
+    pre {
+      background: var(--pre-bg);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 8px 0;
+      border: 1px solid var(--input-border);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      opacity: 0.6;
+      font-style: italic;
+    }
+    
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    @media (max-width: 968px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      textarea {
+        height: 300px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>Local Debugging Sandbox — Demo</h2>
-  <div class="col left">
-    <label><strong>Paste Python code</strong></label><br/>
-    <textarea id="codeArea">print(x)</textarea><br/>
-    <button id="runBtn">Run & Auto-fix</button>
-    <button id="resetBtn">Reset sample</button>
-  </div>
+  <button class="theme-toggle" id="themeToggle" title="Toggle theme">🌙</button>
+  
+  <div class="container">
+    <header>
+      <h1>🤖 AI Debug Sandbox</h1>
+      <p class="subtitle">Automatic Python error detection & fixing powered by AI</p>
+    </header>
 
-  <div class="col right">
-    <h3>Results</h3>
-    <div id="summary"></div>
-    <h4>Iteration Logs</h4>
-    <div id="logs"></div>
-    <h4>Applied Patches</h4>
-    <div id="patches"></div>
-    <h4>Final Code</h4>
-    <pre id="finalCode"></pre>
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="icon">💻</div>
+          <h3>Code Editor</h3>
+        </div>
+        <textarea id="codeArea" placeholder="# Paste your Python code here...">print(x)</textarea>
+        <div class="button-group">
+          <button id="runBtn"><span>▶ Run & Auto-fix</span></button>
+          <button id="resetBtn"><span>↻ Reset</span></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="icon">📊</div>
+          <h3>Debug Results</h3>
+        </div>
+        
+        <div id="summary"></div>
+        
+        <div class="section">
+          <h4>🔄 Iteration Logs</h4>
+          <div id="logs"><div class="empty-state">Run your code to see logs</div></div>
+        </div>
+        
+        <div class="section">
+          <h4>🔧 Applied Patches</h4>
+          <div id="patches"><div class="empty-state">No patches yet</div></div>
+        </div>
+        
+        <div class="section">
+          <h4>✨ Final Code</h4>
+          <pre id="finalCode"><span style="opacity:0.6">Your fixed code will appear here</span></pre>
+        </div>
+      </div>
+    </div>
   </div>
 
 <script>
 const sampleCode = `print(x)`;
 
+// Theme toggle functionality
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+
+// Check for saved theme preference or default to dark mode
+const currentTheme = localStorage.getItem('theme') || 'dark';
+if (currentTheme === 'light') {
+  body.classList.add('light-mode');
+  themeToggle.textContent = '☀️';
+}
+
+themeToggle.addEventListener('click', () => {
+  body.classList.toggle('light-mode');
+  const isLight = body.classList.contains('light-mode');
+  themeToggle.textContent = isLight ? '☀️' : '🌙';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+});
+
 document.getElementById('resetBtn').onclick = () => {
   document.getElementById('codeArea').value = sampleCode;
   document.getElementById('summary').innerHTML = '';
-  document.getElementById('logs').innerHTML = '';
-  document.getElementById('patches').innerHTML = '';
-  document.getElementById('finalCode').innerText = '';
+  document.getElementById('logs').innerHTML = '<div class="empty-state">Run your code to see logs</div>';
+  document.getElementById('patches').innerHTML = '<div class="empty-state">No patches yet</div>';
+  document.getElementById('finalCode').innerHTML = '<span style="opacity:0.6">Your fixed code will appear here</span>';
 };
 
 document.getElementById('runBtn').onclick = async () => {
   const code = document.getElementById('codeArea').value;
-  document.getElementById('summary').innerHTML = 'Running...';
-  document.getElementById('logs').innerHTML = '';
-  document.getElementById('patches').innerHTML = '';
-  document.getElementById('finalCode').innerText = '';
+  document.getElementById('summary').innerHTML = '<div class="status-badge status-running"><span class="spinner"></span>Running analysis...</div>';
+  document.getElementById('logs').innerHTML = '<div class="empty-state">Processing...</div>';
+  document.getElementById('patches').innerHTML = '<div class="empty-state">Analyzing...</div>';
+  document.getElementById('finalCode').innerHTML = '<span style="opacity:0.6">Processing...</span>';
+  
   try {
     const resp = await fetch('http://127.0.0.1:8000/run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, max_iterations: 3, timeout_seconds: 3 })
     });
+    
     if (!resp.ok) {
       const err = await resp.json();
-      document.getElementById('summary').innerHTML = `<span class="fail">Error: ${err.detail}</span>`;
+      document.getElementById('summary').innerHTML = `<div class="status-badge status-fail">❌ Error: ${escapeHtml(err.detail)}</div>`;
       return;
     }
+    
     const data = await resp.json();
-    document.getElementById('summary').innerHTML = data.success ? `<span class="ok">Success — program ran</span>` : `<span class="fail">Failed to auto-fix</span>`;
-    // logs
-    document.getElementById('logs').innerHTML = data.logs.map(l => `<div><strong>Iteration ${l.iteration}</strong><pre>stdout:\n${escapeHtml(l.stdout)}\n\nstderr:\n${escapeHtml(l.stderr)}</pre></div>`).join('');
-    // patches
-    document.getElementById('patches').innerHTML = data.patches.length ? data.patches.map(p => `<div class="patch"><strong>Iteration ${p.iteration}:</strong><div><em>${escapeHtml(p.explanation)}</em></div><pre>${escapeHtml(p.diff)}</pre></div>`).join('') : '<div>No patches applied.</div>';
-    document.getElementById('finalCode').innerText = data.final_code;
+    
+    // Summary
+    document.getElementById('summary').innerHTML = data.success 
+      ? '<div class="status-badge status-success">✅ Success — Code executed without errors!</div>' 
+      : '<div class="status-badge status-fail">⚠️ Failed to auto-fix all issues</div>';
+    
+    // Logs
+    if (data.logs && data.logs.length) {
+      document.getElementById('logs').innerHTML = data.logs.map(l => `
+        <div class="iteration-log">
+          <strong>Iteration ${l.iteration}</strong>
+          <pre><strong>stdout:</strong>\n${escapeHtml(l.stdout) || '(empty)'}\n\n<strong>stderr:</strong>\n${escapeHtml(l.stderr) || '(empty)'}</pre>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('logs').innerHTML = '<div class="empty-state">No iteration logs</div>';
+    }
+    
+    // Patches
+    if (data.patches && data.patches.length) {
+      document.getElementById('patches').innerHTML = data.patches.map(p => `
+        <div class="patch">
+          <strong>Iteration ${p.iteration}</strong>
+          <em>${escapeHtml(p.explanation)}</em>
+          <pre>${escapeHtml(p.diff)}</pre>
+        </div>
+      `).join('');
+    } else {
+      document.getElementById('patches').innerHTML = '<div class="empty-state">No patches needed</div>';
+    }
+    
+    // Final code
+    document.getElementById('finalCode').innerText = data.final_code || code;
+    
   } catch (e) {
-    document.getElementById('summary').innerHTML = `<span class="fail">Exception: ${e.message}</span>`;
+    document.getElementById('summary').innerHTML = `<div class="status-badge status-fail">❌ Exception: ${escapeHtml(e.message)}</div>`;
+    console.error('Request failed:', e);
   }
 };
 
-function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeHtml(s) { 
+  if (!s) return ''; 
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); 
+}
 </script>
 </body>
 </html>
