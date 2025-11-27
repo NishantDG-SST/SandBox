@@ -1,0 +1,83 @@
+<!-- static/index.html -->
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Debugging Sandbox — Demo UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 18px; }
+    textarea { width: 48%; height: 300px; }
+    pre { background:#f6f6f8; padding:10px; border-radius:6px; overflow:auto; }
+    .col { display:inline-block; vertical-align:top; }
+    .left { width: 50%; }
+    .right { width: 46%; margin-left: 2%; }
+    button { padding:10px 14px; margin-top:10px; }
+    .patch { border-left: 3px solid #4CAF50; padding-left:8px; margin-bottom:8px; }
+    .fail { color: #b00020; }
+    .ok { color: #0a7a2a; }
+  </style>
+</head>
+<body>
+  <h2>Local Debugging Sandbox — Demo</h2>
+  <div class="col left">
+    <label><strong>Paste Python code</strong></label><br/>
+    <textarea id="codeArea">print(x)</textarea><br/>
+    <button id="runBtn">Run & Auto-fix</button>
+    <button id="resetBtn">Reset sample</button>
+  </div>
+
+  <div class="col right">
+    <h3>Results</h3>
+    <div id="summary"></div>
+    <h4>Iteration Logs</h4>
+    <div id="logs"></div>
+    <h4>Applied Patches</h4>
+    <div id="patches"></div>
+    <h4>Final Code</h4>
+    <pre id="finalCode"></pre>
+  </div>
+
+<script>
+const sampleCode = `print(x)`;
+
+document.getElementById('resetBtn').onclick = () => {
+  document.getElementById('codeArea').value = sampleCode;
+  document.getElementById('summary').innerHTML = '';
+  document.getElementById('logs').innerHTML = '';
+  document.getElementById('patches').innerHTML = '';
+  document.getElementById('finalCode').innerText = '';
+};
+
+document.getElementById('runBtn').onclick = async () => {
+  const code = document.getElementById('codeArea').value;
+  document.getElementById('summary').innerHTML = 'Running...';
+  document.getElementById('logs').innerHTML = '';
+  document.getElementById('patches').innerHTML = '';
+  document.getElementById('finalCode').innerText = '';
+  try {
+    const resp = await fetch('http://127.0.0.1:8000/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, max_iterations: 3, timeout_seconds: 3 })
+    });
+    if (!resp.ok) {
+      const err = await resp.json();
+      document.getElementById('summary').innerHTML = `<span class="fail">Error: ${err.detail}</span>`;
+      return;
+    }
+    const data = await resp.json();
+    document.getElementById('summary').innerHTML = data.success ? `<span class="ok">Success — program ran</span>` : `<span class="fail">Failed to auto-fix</span>`;
+    // logs
+    document.getElementById('logs').innerHTML = data.logs.map(l => `<div><strong>Iteration ${l.iteration}</strong><pre>stdout:\n${escapeHtml(l.stdout)}\n\nstderr:\n${escapeHtml(l.stderr)}</pre></div>`).join('');
+    // patches
+    document.getElementById('patches').innerHTML = data.patches.length ? data.patches.map(p => `<div class="patch"><strong>Iteration ${p.iteration}:</strong><div><em>${escapeHtml(p.explanation)}</em></div><pre>${escapeHtml(p.diff)}</pre></div>`).join('') : '<div>No patches applied.</div>';
+    document.getElementById('finalCode').innerText = data.final_code;
+  } catch (e) {
+    document.getElementById('summary').innerHTML = `<span class="fail">Exception: ${e.message}</span>`;
+  }
+};
+
+function escapeHtml(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
