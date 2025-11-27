@@ -763,9 +763,42 @@ document.getElementById("fileInput").addEventListener("change", async (ev) => {
 });
 
 // Run without fixing
+/* ========== RUN: minimal output only ========== */
 document.getElementById("runBtn").onclick = async () => {
-  await runOrFix(false);
+  const code = document.getElementById("codeArea").value;
+
+  document.getElementById("summary").innerHTML = "⏳ Running...";
+  document.getElementById("logs").innerHTML = "";
+  document.getElementById("patches").innerHTML = "";
+  document.getElementById("finalCode").innerHTML = "…";
+
+  try {
+    const resp = await fetch("http://127.0.0.1:8000/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code,
+        run_only: true,
+        timeout_seconds: 5
+      })
+    });
+
+    const data = await resp.json();
+
+    const output =
+      data.stdout?.trim() !== "" ? data.stdout : (data.stderr || "");
+
+    document.getElementById("finalCode").innerText =
+      output || "(no output)";
+
+    document.getElementById("summary").innerHTML =
+      data.success ? "✅ Execution successful" : "⚠ Execution failed";
+  } catch (err) {
+    document.getElementById("summary").innerHTML = "❌ Request failed";
+    document.getElementById("finalCode").innerText = err;
+  }
 };
+
 
 // Fix and apply patches
 document.getElementById("fixBtn").onclick = async () => {

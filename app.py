@@ -83,6 +83,7 @@ class RunRequest(BaseModel):
     code: str
     max_iterations: int = 3
     timeout_seconds: int = 3
+    run_only: bool = False
 
 # ---------- Sandbox runner ----------
 def run_python_code(code: str, timeout: int = 3) -> Dict[str, Any]:
@@ -345,10 +346,23 @@ def repair_code_loop(initial_code: str, max_iterations: int = 3, timeout_seconds
 # ---------- API endpoints ----------
 @app.post("/run")
 async def run(req: RunRequest):
-    if not req.code or not req.code.strip():
-        raise HTTPException(status_code=400, detail="Empty code.")
-    result = repair_code_loop(req.code, max_iterations=req.max_iterations, timeout_seconds=req.timeout_seconds)
+    # --- RUN ONLY MODE (minimal output) ---
+    if req.run_only:
+        result = run_python_code(req.code, timeout=req.timeout_seconds)
+        return {
+            "stdout": result.get("stdout", ""),
+            "stderr": result.get("stderr", ""),
+            "success": result.get("success", False)
+        }
+
+    # --- FULL AUTO-FIX MODE ---
+    result = repair_code_loop(
+        req.code,
+        max_iterations=req.max_iterations,
+        timeout_seconds=req.timeout_seconds
+    )
     return result
+
 
 @app.get("/health")
 async def health():
