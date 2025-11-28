@@ -1,12 +1,17 @@
 <!doctype html>
 <html>
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Debug IDE</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     :root {
       --bg-primary: #1e1e1e;
       --bg-secondary: #252526;
@@ -25,7 +30,7 @@
       --error: #f48771;
       --warning: #cca700;
     }
-    
+
     body.light-mode {
       --bg-primary: #ffffff;
       --bg-secondary: #f3f3f3;
@@ -36,7 +41,7 @@
       --sidebar-bg: #f3f3f3;
       --hover-bg: #e8e8e8;
     }
-    
+
     body {
       font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
       background: var(--bg-primary);
@@ -44,14 +49,14 @@
       height: 100vh;
       overflow: hidden;
     }
-    
+
     /* IDE LAYOUT */
     .ide-container {
       display: flex;
       flex-direction: column;
       height: 100vh;
     }
-    
+
     /* TOP BAR */
     .top-bar {
       background: var(--bg-tertiary);
@@ -62,36 +67,36 @@
       border-bottom: 1px solid var(--border-color);
       gap: 20px;
     }
-    
+
     .top-bar-title {
       font-size: 13px;
       color: var(--text-primary);
       font-weight: 500;
     }
-    
+
     .top-bar-menu {
       display: flex;
       gap: 15px;
       font-size: 13px;
     }
-    
+
     .menu-item {
       color: var(--text-secondary);
       cursor: pointer;
       transition: color 0.2s;
     }
-    
+
     .menu-item:hover {
       color: var(--text-primary);
     }
-    
+
     /* MAIN CONTENT */
     .main-content {
       display: flex;
       flex: 1;
       overflow: hidden;
     }
-    
+
     /* SIDEBAR */
     .sidebar {
       width: 48px;
@@ -103,7 +108,7 @@
       padding: 8px 0;
       gap: 8px;
     }
-    
+
     .sidebar-icon {
       width: 48px;
       height: 48px;
@@ -116,11 +121,12 @@
       position: relative;
       transition: color 0.2s;
     }
-    
-    .sidebar-icon:hover, .sidebar-icon.active {
+
+    .sidebar-icon:hover,
+    .sidebar-icon.active {
       color: var(--text-primary);
     }
-    
+
     .sidebar-icon.active::before {
       content: '';
       position: absolute;
@@ -130,7 +136,7 @@
       width: 2px;
       background: var(--accent-blue);
     }
-    
+
     /* EXPLORER PANEL */
     .explorer-panel {
       width: 250px;
@@ -139,7 +145,7 @@
       display: flex;
       flex-direction: column;
     }
-    
+
     .panel-header {
       padding: 8px 12px;
       font-size: 11px;
@@ -150,11 +156,11 @@
       background: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color);
     }
-    
+
     .file-tree {
       padding: 8px 0;
     }
-    
+
     .file-item {
       padding: 4px 12px 4px 20px;
       display: flex;
@@ -165,19 +171,19 @@
       color: var(--text-primary);
       transition: background 0.2s;
     }
-    
+
     .file-item:hover {
       background: var(--hover-bg);
     }
-    
+
     .file-item.active {
       background: var(--hover-bg);
     }
-    
+
     .file-icon {
       font-size: 16px;
     }
-    
+
     /* EDITOR AREA */
     .editor-area {
       flex: 1;
@@ -185,7 +191,7 @@
       flex-direction: column;
       overflow: hidden;
     }
-    
+
     /* TABS */
     .tabs-bar {
       background: var(--bg-secondary);
@@ -194,7 +200,7 @@
       height: 35px;
       overflow-x: auto;
     }
-    
+
     .tab {
       display: flex;
       align-items: center;
@@ -208,26 +214,26 @@
       transition: background 0.2s, color 0.2s;
       white-space: nowrap;
     }
-    
+
     .tab.active {
       background: var(--bg-primary);
       color: var(--text-primary);
     }
-    
+
     .tab:hover {
       color: var(--text-primary);
     }
-    
+
     .tab-close {
       margin-left: 4px;
       opacity: 0;
       transition: opacity 0.2s;
     }
-    
+
     .tab:hover .tab-close {
       opacity: 1;
     }
-    
+
     /* TOOLBAR */
     .toolbar {
       background: var(--bg-primary);
@@ -237,7 +243,7 @@
       gap: 8px;
       align-items: center;
     }
-    
+
     .toolbar-btn {
       padding: 6px 12px;
       border-radius: 4px;
@@ -253,55 +259,55 @@
       font-family: 'Segoe UI', system-ui, sans-serif;
       font-weight: 500;
     }
-    
+
     .toolbar-btn:hover {
       background: var(--hover-bg);
       border-color: var(--accent-blue);
     }
-    
+
     .toolbar-btn.primary {
       background: var(--accent-blue);
       border-color: var(--accent-blue);
       color: white;
     }
-    
+
     .toolbar-btn.primary:hover {
       background: #006bb3;
     }
-    
+
     .toolbar-btn.success {
       background: var(--success);
       border-color: var(--success);
       color: #1e1e1e;
     }
-    
+
     .toolbar-btn.warning {
       background: var(--accent-orange);
       border-color: var(--accent-orange);
       color: white;
     }
-    
+
     .toolbar-separator {
       width: 1px;
       height: 20px;
       background: var(--border-color);
       margin: 0 4px;
     }
-    
+
     /* EDITOR */
     .editor-container {
       flex: 1;
       display: flex;
       overflow: hidden;
     }
-    
+
     .editor-pane {
       flex: 1;
       display: flex;
       flex-direction: column;
       position: relative;
     }
-    
+
     .line-numbers {
       position: absolute;
       left: 0;
@@ -318,7 +324,7 @@
       user-select: none;
       overflow: hidden;
     }
-    
+
     #codeArea {
       flex: 1;
       padding: 12px 12px 12px 62px;
@@ -332,7 +338,7 @@
       resize: none;
       tab-size: 4;
     }
-    
+
     /* OUTPUT PANEL */
     .output-panel {
       width: 400px;
@@ -342,13 +348,13 @@
       flex-direction: column;
       overflow: hidden;
     }
-    
+
     .output-tabs {
       display: flex;
       background: var(--bg-tertiary);
       border-bottom: 1px solid var(--border-color);
     }
-    
+
     .output-tab {
       padding: 8px 16px;
       font-size: 12px;
@@ -358,26 +364,26 @@
       transition: all 0.2s;
       font-weight: 500;
     }
-    
+
     .output-tab.active {
       color: var(--text-primary);
       border-bottom-color: var(--accent-blue);
     }
-    
+
     .output-tab:hover {
       color: var(--text-primary);
     }
-    
+
     .output-content {
       flex: 1;
       overflow-y: auto;
       padding: 12px;
     }
-    
+
     .output-section {
       margin-bottom: 16px;
     }
-    
+
     .output-section-title {
       font-size: 12px;
       font-weight: 600;
@@ -387,7 +393,7 @@
       align-items: center;
       gap: 6px;
     }
-    
+
     .log-entry {
       background: var(--bg-primary);
       border: 1px solid var(--border-color);
@@ -396,13 +402,13 @@
       margin-bottom: 8px;
       font-size: 12px;
     }
-    
+
     .log-header {
       color: var(--accent-blue);
       font-weight: 600;
       margin-bottom: 6px;
     }
-    
+
     .log-content {
       color: var(--text-secondary);
       white-space: pre-wrap;
@@ -410,7 +416,7 @@
       font-size: 11px;
       line-height: 1.5;
     }
-    
+
     .patch-entry {
       background: var(--bg-primary);
       border-left: 3px solid var(--success);
@@ -418,20 +424,55 @@
       margin-bottom: 8px;
       font-size: 12px;
     }
-    
+
     .patch-explanation {
       color: var(--accent-green);
       margin-bottom: 6px;
       font-style: italic;
     }
-    
+
     .patch-diff {
       color: var(--text-secondary);
       white-space: pre-wrap;
       font-family: 'Consolas', monospace;
       font-size: 11px;
     }
-    
+
+    .patch-reasoning {
+      margin: 8px 0;
+      font-size: 11px;
+      color: var(--text-secondary);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 8px;
+      border-radius: 4px;
+    }
+
+    .patch-reasoning strong {
+      color: var(--accent-orange);
+    }
+
+    .patch-reasoning ul {
+      margin-left: 16px;
+      margin-top: 4px;
+    }
+
+    .patch-reasoning li {
+      margin-bottom: 2px;
+    }
+
+    .patch-error-msg {
+      background: rgba(244, 135, 113, 0.15);
+      border: 1px solid var(--error);
+      color: var(--error);
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -442,25 +483,25 @@
       font-weight: 600;
       margin-bottom: 12px;
     }
-    
+
     .status-success {
       background: rgba(137, 209, 133, 0.2);
       color: var(--success);
       border: 1px solid var(--success);
     }
-    
+
     .status-error {
       background: rgba(244, 135, 113, 0.2);
       color: var(--error);
       border: 1px solid var(--error);
     }
-    
+
     .status-running {
       background: rgba(204, 167, 0, 0.2);
       color: var(--warning);
       border: 1px solid var(--warning);
     }
-    
+
     .empty-state {
       color: var(--text-secondary);
       text-align: center;
@@ -468,7 +509,7 @@
       font-size: 13px;
       font-style: italic;
     }
-    
+
     /* STATUS BAR */
     .status-bar {
       background: var(--accent-blue);
@@ -480,13 +521,13 @@
       font-size: 12px;
       gap: 16px;
     }
-    
+
     .status-item {
       display: flex;
       align-items: center;
       gap: 4px;
     }
-    
+
     .theme-toggle-btn {
       margin-left: auto;
       cursor: pointer;
@@ -494,30 +535,30 @@
       border-radius: 3px;
       transition: background 0.2s;
     }
-    
+
     .theme-toggle-btn:hover {
       background: rgba(255, 255, 255, 0.2);
     }
-    
+
     /* SCROLLBAR */
     ::-webkit-scrollbar {
       width: 10px;
       height: 10px;
     }
-    
+
     ::-webkit-scrollbar-track {
       background: var(--bg-secondary);
     }
-    
+
     ::-webkit-scrollbar-thumb {
       background: var(--border-color);
       border-radius: 5px;
     }
-    
+
     ::-webkit-scrollbar-thumb:hover {
       background: var(--text-secondary);
     }
-    
+
     /* SPINNER */
     .spinner {
       border: 2px solid rgba(255, 255, 255, 0.3);
@@ -528,320 +569,340 @@
       animation: spin 1s linear infinite;
       display: inline-block;
     }
-    
+
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
     }
-    
+
     /* RESPONSIVE */
     @media (max-width: 1024px) {
       .output-panel {
         width: 300px;
       }
-      
+
       .explorer-panel {
         width: 200px;
       }
     }
-    
+
     #fileInput {
       display: none;
     }
   </style>
 </head>
+
 <body>
 
-<div class="ide-container">
-  <!-- TOP BAR -->
-  <div class="top-bar">
-    <div class="top-bar-title">AI Debug IDE</div>
-    <div class="top-bar-menu">
-      <span class="menu-item">File</span>
-      <span class="menu-item">Edit</span>
-      <span class="menu-item">View</span>
-      <span class="menu-item">Run</span>
-      <span class="menu-item">Help</span>
-    </div>
-  </div>
-
-  <!-- MAIN CONTENT -->
-  <div class="main-content">
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sidebar-icon active" title="Explorer">📁</div>
-      <div class="sidebar-icon" title="Search">🔍</div>
-      <div class="sidebar-icon" title="Source Control">🔀</div>
-      <div class="sidebar-icon" title="Debug">🐛</div>
-      <div class="sidebar-icon" title="Extensions">⚡</div>
-    </div>
-
-    <!-- EXPLORER PANEL -->
-    <div class="explorer-panel">
-      <div class="panel-header">EXPLORER</div>
-      <div class="file-tree">
-        <div class="file-item active">
-          <span class="file-icon">🐍</span>
-          <span>main.py</span>
-        </div>
-        <div class="file-item">
-          <span class="file-icon">📄</span>
-          <span>README.md</span>
-        </div>
+  <div class="ide-container">
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="top-bar-title">AI Debug IDE</div>
+      <div class="top-bar-menu">
+        <span class="menu-item">File</span>
+        <span class="menu-item">Edit</span>
+        <span class="menu-item">View</span>
+        <span class="menu-item">Run</span>
+        <span class="menu-item">Help</span>
       </div>
     </div>
 
-    <!-- EDITOR AREA -->
-    <div class="editor-area">
-      <!-- TABS -->
-      <div class="tabs-bar">
-        <div class="tab active">
-          <span>🐍</span>
-          <span>main.py</span>
-          <span class="tab-close">×</span>
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sidebar-icon active" title="Explorer">📁</div>
+        <div class="sidebar-icon" title="Search">🔍</div>
+        <div class="sidebar-icon" title="Source Control">🔀</div>
+        <div class="sidebar-icon" title="Debug">🐛</div>
+        <div class="sidebar-icon" title="Extensions">⚡</div>
+      </div>
+
+      <!-- EXPLORER PANEL -->
+      <div class="explorer-panel">
+        <div class="panel-header">EXPLORER</div>
+        <div class="file-tree">
+          <div class="file-item active">
+            <span class="file-icon">🐍</span>
+            <span>main.py</span>
+          </div>
+          <div class="file-item">
+            <span class="file-icon">📄</span>
+            <span>README.md</span>
+          </div>
         </div>
       </div>
 
-      <!-- TOOLBAR -->
-      <div class="toolbar">
-        <label for="fileInput">
-          <button class="toolbar-btn" id="uploadBtn">
-            <span>📁</span>
-            <span>Upload</span>
+      <!-- EDITOR AREA -->
+      <div class="editor-area">
+        <!-- TABS -->
+        <div class="tabs-bar">
+          <div class="tab active">
+            <span>🐍</span>
+            <span>main.py</span>
+            <span class="tab-close">×</span>
+          </div>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="toolbar">
+          <label for="fileInput">
+            <button class="toolbar-btn" id="uploadBtn">
+              <span>📁</span>
+              <span>Upload</span>
+            </button>
+          </label>
+          <input type="file" id="fileInput" accept=".py,text/plain" />
+
+          <button class="toolbar-btn primary" id="runBtn">
+            <span>▶</span>
+            <span>Run</span>
           </button>
-        </label>
-        <input type="file" id="fileInput" accept=".py,text/plain" />
-        
-        <button class="toolbar-btn primary" id="runBtn">
-          <span>▶</span>
-          <span>Run</span>
-        </button>
-        
-        <button class="toolbar-btn warning" id="fixBtn">
-          <span>🔧</span>
-          <span>Auto-Fix</span>
-        </button>
-        
-        <div class="toolbar-separator"></div>
-        
-        <button class="toolbar-btn" id="resetBtn">
-          <span>↻</span>
-          <span>Reset</span>
-        </button>
-      </div>
 
-      <!-- EDITOR -->
-      <div class="editor-container">
-        <div class="editor-pane">
-          <div class="line-numbers" id="lineNumbers">1</div>
-          <textarea id="codeArea" spellcheck="false">print(x)</textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- OUTPUT PANEL -->
-    <div class="output-panel">
-      <div class="output-tabs">
-        <div class="output-tab active">OUTPUT</div>
-        <div class="output-tab">PROBLEMS</div>
-        <div class="output-tab">DEBUG</div>
-      </div>
-      
-      <div class="output-content">
-        <div id="summary"></div>
-        
-        <div class="output-section">
-          <div class="output-section-title">
-            <span>🔄</span>
-            <span>EXECUTION LOGS</span>
-          </div>
-          <div id="logs">
-            <div class="empty-state">Run your code to see execution logs</div>
-          </div>
-        </div>
-        
-        <div class="output-section">
-          <div class="output-section-title">
+          <button class="toolbar-btn warning" id="fixBtn">
             <span>🔧</span>
-            <span>APPLIED PATCHES</span>
-          </div>
-          <div id="patches">
-            <div class="empty-state">No patches applied yet</div>
+            <span>Auto-Fix</span>
+          </button>
+
+          <div class="toolbar-separator"></div>
+
+          <button class="toolbar-btn" id="resetBtn">
+            <span>↻</span>
+            <span>Reset</span>
+          </button>
+        </div>
+
+        <!-- EDITOR -->
+        <div class="editor-container">
+          <div class="editor-pane">
+            <div class="line-numbers" id="lineNumbers">1</div>
+            <textarea id="codeArea" spellcheck="false">print(x)</textarea>
           </div>
         </div>
-        
-        <div class="output-section">
-          <div class="output-section-title">
-            <span>✨</span>
-            <span>FIXED CODE</span>
+      </div>
+
+      <!-- OUTPUT PANEL -->
+      <div class="output-panel">
+        <div class="output-tabs">
+          <div class="output-tab active">OUTPUT</div>
+          <div class="output-tab">PROBLEMS</div>
+          <div class="output-tab">DEBUG</div>
+        </div>
+
+        <div class="output-content">
+          <div id="summary"></div>
+
+          <div class="output-section">
+            <div class="output-section-title">
+              <span>🔄</span>
+              <span>EXECUTION LOGS</span>
+            </div>
+            <div id="logs">
+              <div class="empty-state">Run your code to see execution logs</div>
+            </div>
           </div>
-          <div id="finalCode">
-            <div class="empty-state">Fixed code will appear here</div>
+
+          <div class="output-section">
+            <div class="output-section-title">
+              <span>🔧</span>
+              <span>APPLIED PATCHES</span>
+            </div>
+            <div id="patches">
+              <div class="empty-state">No patches applied yet</div>
+            </div>
+          </div>
+
+          <div class="output-section">
+            <div class="output-section-title" id="finalCodeHeader">
+              <span>✨</span>
+              <span>FIXED CODE</span>
+            </div>
+            <div id="finalCode">
+              <div class="empty-state">Fixed code will appear here</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- STATUS BAR -->
+    <div class="status-bar">
+      <div class="status-item">
+        <span>🐍</span>
+        <span>Python</span>
+      </div>
+      <div class="status-item">
+        <span>UTF-8</span>
+      </div>
+      <div class="status-item">
+        <span>Ln 1, Col 1</span>
+      </div>
+      <div class="theme-toggle-btn" id="themeToggle" title="Toggle Theme">
+        <span>🌙</span>
+      </div>
+    </div>
   </div>
 
-  <!-- STATUS BAR -->
-  <div class="status-bar">
-    <div class="status-item">
-      <span>🐍</span>
-      <span>Python</span>
-    </div>
-    <div class="status-item">
-      <span>UTF-8</span>
-    </div>
-    <div class="status-item">
-      <span>Ln 1, Col 1</span>
-    </div>
-    <div class="theme-toggle-btn" id="themeToggle" title="Toggle Theme">
-      <span>🌙</span>
-    </div>
-  </div>
-</div>
+  <script>
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    const currentTheme = localStorage.getItem('theme') || 'dark';
 
-<script>
-// Theme toggle
-const themeToggle = document.getElementById('themeToggle');
-const body = document.body;
-const currentTheme = localStorage.getItem('theme') || 'dark';
-
-if (currentTheme === 'light') {
-  body.classList.add('light-mode');
-  themeToggle.innerHTML = '<span>☀️</span>';
-}
-
-themeToggle.addEventListener('click', () => {
-  body.classList.toggle('light-mode');
-  const isLight = body.classList.contains('light-mode');
-  themeToggle.innerHTML = isLight ? '<span>☀️</span>' : '<span>🌙</span>';
-  localStorage.setItem('theme', isLight ? 'light' : 'dark');
-});
-
-// Line numbers
-const codeArea = document.getElementById('codeArea');
-const lineNumbers = document.getElementById('lineNumbers');
-
-function updateLineNumbers() {
-  const lines = codeArea.value.split('\n').length;
-  lineNumbers.textContent = Array.from({length: lines}, (_, i) => i + 1).join('\n');
-}
-
-codeArea.addEventListener('input', updateLineNumbers);
-codeArea.addEventListener('scroll', () => {
-  lineNumbers.scrollTop = codeArea.scrollTop;
-});
-
-updateLineNumbers();
-
-// File upload
-document.getElementById("uploadBtn").onclick = () => {
-  document.getElementById("fileInput").click();
-};
-
-document.getElementById("fileInput").addEventListener("change", async (ev) => {
-  const file = ev.target.files[0];
-  if (!file) return;
-
-  const form = new FormData();
-  form.append("file", file);
-
-  try {
-    const resp = await fetch("http://127.0.0.1:8000/upload", {
-      method: "POST",
-      body: form
-    });
-
-    const data = await resp.json();
-    codeArea.value = data.text;
-    updateLineNumbers();
-    document.getElementById("summary").innerHTML = `<div class="status-badge status-success">📁 Loaded: ${escapeHtml(data.filename)}</div>`;
-  } catch (e) {
-    document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Upload failed: ${escapeHtml(e.message)}</div>`;
-  }
-});
-
-// Run without fixing
-/* ========== RUN: minimal output only ========== */
-document.getElementById("runBtn").onclick = async () => {
-  const code = document.getElementById("codeArea").value;
-
-  document.getElementById("summary").innerHTML = "⏳ Running...";
-  document.getElementById("logs").innerHTML = "";
-  document.getElementById("patches").innerHTML = "";
-  document.getElementById("finalCode").innerHTML = "…";
-
-  try {
-    const resp = await fetch("http://127.0.0.1:8000/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code,
-        run_only: true,
-        timeout_seconds: 5
-      })
-    });
-
-    const data = await resp.json();
-
-    const output =
-      data.stdout?.trim() !== "" ? data.stdout : (data.stderr || "");
-
-    document.getElementById("finalCode").innerText =
-      output || "(no output)";
-
-    document.getElementById("summary").innerHTML =
-      data.success ? "✅ Execution successful" : "⚠ Execution failed";
-  } catch (err) {
-    document.getElementById("summary").innerHTML = "❌ Request failed";
-    document.getElementById("finalCode").innerText = err;
-  }
-};
-
-
-// Fix and apply patches
-document.getElementById("fixBtn").onclick = async () => {
-  await runOrFix(true);
-};
-
-// Core run/fix handler
-async function runOrFix(applyFix) {
-  const code = codeArea.value;
-
-  document.getElementById("summary").innerHTML = '<div class="status-badge status-running"><span class="spinner"></span> Processing...</div>';
-  document.getElementById("logs").innerHTML = '<div class="empty-state">Running...</div>';
-  document.getElementById("patches").innerHTML = '<div class="empty-state">Analyzing...</div>';
-  document.getElementById("finalCode").innerHTML = '<div class="empty-state">Processing...</div>';
-
-  try {
-    const resp = await fetch("http://127.0.0.1:8000/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code,
-        max_iterations: 5,
-        timeout_seconds: 3
-      })
-    });
-
-    if (!resp.ok) {
-      const err = await resp.json();
-      document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Error: ${escapeHtml(err.detail)}</div>`;
-      return;
+    if (currentTheme === 'light') {
+      body.classList.add('light-mode');
+      themeToggle.innerHTML = '<span>☀️</span>';
     }
 
-    const data = await resp.json();
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('light-mode');
+      const isLight = body.classList.contains('light-mode');
+      themeToggle.innerHTML = isLight ? '<span>☀️</span>' : '<span>🌙</span>';
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    });
 
-    // Summary
-    document.getElementById("summary").innerHTML = data.success 
-      ? '<div class="status-badge status-success">✅ Execution successful</div>' 
-      : '<div class="status-badge status-error">⚠️ Errors detected</div>';
+    // Line numbers
+    const codeArea = document.getElementById('codeArea');
+    const lineNumbers = document.getElementById('lineNumbers');
 
-    // Logs
-    if (data.logs && data.logs.length > 0) {
-      document.getElementById("logs").innerHTML = data.logs
-        .map(l => `
+    function updateLineNumbers() {
+      const lines = codeArea.value.split('\n').length;
+      lineNumbers.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+    }
+
+    codeArea.addEventListener('input', updateLineNumbers);
+    codeArea.addEventListener('scroll', () => {
+      lineNumbers.scrollTop = codeArea.scrollTop;
+    });
+
+    updateLineNumbers();
+
+    // File upload
+    document.getElementById("uploadBtn").onclick = () => {
+      document.getElementById("fileInput").click();
+    };
+
+    document.getElementById("fileInput").addEventListener("change", async (ev) => {
+      const file = ev.target.files[0];
+      if (!file) return;
+
+      const form = new FormData();
+      form.append("file", file);
+
+      try {
+        const resp = await fetch("http://127.0.0.1:8000/upload", {
+          method: "POST",
+          body: form
+        });
+
+        const data = await resp.json();
+        codeArea.value = data.text;
+        updateLineNumbers();
+        document.getElementById("summary").innerHTML = `<div class="status-badge status-success">📁 Loaded: ${escapeHtml(data.filename)}</div>`;
+      } catch (e) {
+        document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Upload failed: ${escapeHtml(e.message)}</div>`;
+      }
+    });
+
+    // Run without fixing
+    /* ========== RUN: minimal output only ========== */
+    document.getElementById("runBtn").onclick = async () => {
+      const code = document.getElementById("codeArea").value;
+
+      document.getElementById("summary").innerHTML = "⏳ Running...";
+      document.getElementById("logs").innerHTML = "";
+      document.getElementById("patches").innerHTML = "";
+      document.getElementById("finalCodeHeader").innerHTML = "<span>💻</span><span>OUTPUT</span>";
+      document.getElementById("finalCode").innerHTML = "…";
+
+      try {
+        const resp = await fetch("http://127.0.0.1:8000/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code,
+            run_only: true,
+            timeout_seconds: 5
+          })
+        });
+
+        const data = await resp.json();
+
+        const output =
+          data.stdout?.trim() !== "" ? data.stdout : (data.stderr || "");
+
+        let displayContent = output || "(no output)";
+
+        if (data.logical_error) {
+          displayContent = `<div class="patch-error-msg"><span>⚠️</span><span>${escapeHtml(data.logical_error)}</span></div>` + displayContent;
+          document.getElementById("summary").innerHTML = '<div class="status-badge status-running">⚠️ Logical Error Detected</div>';
+        } else {
+          document.getElementById("summary").innerHTML =
+            data.success ? "✅ Execution successful" : "⚠ Execution failed";
+        }
+
+        document.getElementById("finalCode").innerHTML = displayContent;
+      } catch (err) {
+        document.getElementById("summary").innerHTML = "❌ Request failed";
+        document.getElementById("finalCode").innerText = err;
+      }
+    };
+
+
+    // Fix and apply patches
+    document.getElementById("fixBtn").onclick = async () => {
+      await runOrFix(true);
+    };
+
+    // Core run/fix handler
+    async function runOrFix(applyFix) {
+      const code = codeArea.value;
+
+      document.getElementById("summary").innerHTML = '<div class="status-badge status-running"><span class="spinner"></span> Processing...</div>';
+      document.getElementById("logs").innerHTML = '<div class="empty-state">Running...</div>';
+      document.getElementById("patches").innerHTML = '<div class="empty-state">Analyzing...</div>';
+      document.getElementById("finalCodeHeader").innerHTML = "<span>✨</span><span>FIXED CODE</span>";
+      document.getElementById("finalCode").innerHTML = '<div class="empty-state">Processing...</div>';
+
+      try {
+        const resp = await fetch("http://127.0.0.1:8000/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code,
+            max_iterations: 5,
+            timeout_seconds: 3
+          })
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json();
+          document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Error: ${escapeHtml(err.detail)}</div>`;
+          return;
+        }
+
+        const data = await resp.json();
+
+        // Summary
+        if (data.success) {
+          if (data.patches && data.patches.length > 0) {
+            document.getElementById("summary").innerHTML = '<div class="status-badge status-success">✨ Issues Detected & Fixed</div>';
+          } else {
+            document.getElementById("summary").innerHTML = '<div class="status-badge status-success">✅ Execution successful</div>';
+          }
+        } else {
+          document.getElementById("summary").innerHTML = '<div class="status-badge status-error">⚠️ Errors detected</div>';
+        }
+
+        // Logs
+        if (data.logs && data.logs.length > 0) {
+          document.getElementById("logs").innerHTML = data.logs
+            .map(l => `
           <div class="log-entry">
             <div class="log-header">Iteration ${l.iteration}</div>
             <div class="log-content"><strong>stderr:</strong>
@@ -851,60 +912,75 @@ ${escapeHtml(l.stderr) || '(empty)'}
 ${escapeHtml(l.stdout) || '(empty)'}</div>
           </div>
         `).join('');
-    } else {
-      document.getElementById("logs").innerHTML = '<div class="empty-state">No logs generated</div>';
-    }
+        } else {
+          document.getElementById("logs").innerHTML = '<div class="empty-state">No logs generated</div>';
+        }
 
-    // Patches
-    if (data.patches && data.patches.length > 0) {
-      document.getElementById("patches").innerHTML = data.patches
-        .map(p => `
+        // Patches
+        if (data.patches && data.patches.length > 0) {
+          document.getElementById("patches").innerHTML = data.patches
+            .map(p => `
           <div class="patch-entry">
+            ${p.error_message ? `
+              <div class="patch-error-msg">
+                <span>🚫</span>
+                <span>${escapeHtml(p.error_message)}</span>
+              </div>
+            ` : ''}
             <div class="patch-explanation">${escapeHtml(p.explanation)}</div>
+            ${p.reasoning ? `
+              <div class="patch-reasoning">
+                <strong>🔍 Analysis:</strong>
+                <ul>
+                  ${p.reasoning.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
             <div class="patch-diff">${escapeHtml(p.diff)}</div>
           </div>
         `).join('');
-    } else {
-      document.getElementById("patches").innerHTML = '<div class="empty-state">No patches needed</div>';
-    }
+        } else {
+          document.getElementById("patches").innerHTML = '<div class="empty-state">No patches needed</div>';
+        }
 
-    // Final code
-    if (data.final_code) {
-      document.getElementById("finalCode").innerHTML = `<div class="log-entry"><pre class="log-content">${escapeHtml(data.final_code)}</pre></div>`;
-      
-      // Apply fix to editor if requested
-      if (applyFix) {
-        codeArea.value = data.final_code;
-        updateLineNumbers();
+        // Final code
+        if (data.final_code) {
+          document.getElementById("finalCode").innerHTML = `<div class="log-entry"><pre class="log-content">${escapeHtml(data.final_code)}</pre></div>`;
+
+          // Apply fix to editor if requested
+          if (applyFix) {
+            codeArea.value = data.final_code;
+            updateLineNumbers();
+          }
+        } else {
+          document.getElementById("finalCode").innerHTML = '<div class="empty-state">No changes made</div>';
+        }
+
+      } catch (e) {
+        document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Exception: ${escapeHtml(e.message)}</div>`;
       }
-    } else {
-      document.getElementById("finalCode").innerHTML = '<div class="empty-state">No changes made</div>';
     }
 
-  } catch (e) {
-    document.getElementById("summary").innerHTML = `<div class="status-badge status-error">❌ Exception: ${escapeHtml(e.message)}</div>`;
-  }
-}
+    // Reset
+    document.getElementById("resetBtn").onclick = () => {
+      codeArea.value = "print(x)";
+      updateLineNumbers();
+      document.getElementById("summary").innerHTML = "";
+      document.getElementById("logs").innerHTML = '<div class="empty-state">Run your code to see execution logs</div>';
+      document.getElementById("patches").innerHTML = '<div class="empty-state">No patches applied yet</div>';
+      document.getElementById("finalCode").innerHTML = '<div class="empty-state">Fixed code will appear here</div>';
+    };
 
-// Reset
-document.getElementById("resetBtn").onclick = () => {
-  codeArea.value = "print(x)";
-  updateLineNumbers();
-  document.getElementById("summary").innerHTML = "";
-  document.getElementById("logs").innerHTML = '<div class="empty-state">Run your code to see execution logs</div>';
-  document.getElementById("patches").innerHTML = '<div class="empty-state">No patches applied yet</div>';
-  document.getElementById("finalCode").innerHTML = '<div class="empty-state">Fixed code will appear here</div>';
-};
-
-// HTML escape
-function escapeHtml(s) {
-  if (!s) return '';
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-</script>
+    // HTML escape
+    function escapeHtml(s) {
+      if (!s) return '';
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+  </script>
 
 </body>
+
 </html>

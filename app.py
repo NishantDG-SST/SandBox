@@ -486,8 +486,9 @@ def generate_patch_rule_based_v2(code: str, stderr: str):
 def detect_tree_traversal_error(code: str, stdout: str) -> Optional[tuple]:
     """
     Detect common tree traversal logical errors.
-    Returns: (new_code, diff, explanation, reasoning) or None if no issue detected.
+    Returns: (new_code, diff, explanation, reasoning, error_message) or None if no issue detected.
         reasoning: List of strings describing the decision-making process
+        error_message: Short summary of the logical error
     """
     try:
         # Check if code contains tree traversal patterns
@@ -584,7 +585,8 @@ def detect_tree_traversal_error(code: str, stdout: str) -> Optional[tuple]:
                         new_code = "\n".join(new_lines)
                         diff = "\n".join(difflib.unified_diff(code.splitlines(), new_code.splitlines(), lineterm=""))
                         explanation = "Fixed preorder traversal: moved node visit (append) to before recursive calls. The function was doing inorder (left-root-right) instead of preorder (root-left-right)."
-                        return new_code, diff, explanation, reasoning
+                        error_message = "Logical Error: Function 'preorder' implements Inorder traversal (Left -> Root -> Right) instead of Preorder (Root -> Left -> Right)."
+                        return new_code, diff, explanation, reasoning, error_message
         
         return None
     except Exception as e:
@@ -606,8 +608,14 @@ def repair_code_loop(initial_code: str, max_iterations: int = 3, timeout_seconds
             # Check for logical errors even when code runs successfully
             logical_fix = detect_tree_traversal_error(code, run_res["stdout"])
             if logical_fix:
-                new_code, diff, explanation, reasoning = logical_fix
-                patches.append({"iteration": it, "diff": diff, "explanation": explanation, "reasoning": reasoning})
+                new_code, diff, explanation, reasoning, error_msg = logical_fix
+                patches.append({
+                    "iteration": it, 
+                    "diff": diff, 
+                    "explanation": explanation, 
+                    "reasoning": reasoning,
+                    "error_message": error_msg
+                })
                 code = new_code
                 # Continue to next iteration to verify the fix
                 continue
@@ -645,10 +653,20 @@ async def run(req: RunRequest):
     # --- RUN ONLY MODE (minimal output) ---
     if req.run_only:
         result = run_python_code(req.code, timeout=req.timeout_seconds)
+        
+        # Check for logical errors even in run-only mode
+        logical_error = None
+        if result["success"]:
+            detection = detect_tree_traversal_error(req.code, result.get("stdout", ""))
+            if detection:
+                # detection is (new_code, diff, explanation, reasoning, error_message)
+                logical_error = detection[4]
+
         return {
             "stdout": result.get("stdout", ""),
             "stderr": result.get("stderr", ""),
-            "success": result.get("success", False)
+            "success": result.get("success", False),
+            "logical_error": logical_error
         }
 
     # --- FULL AUTO-FIX MODE ---
